@@ -1,0 +1,38 @@
+#cloud-config
+package_update: false
+package_upgrade: false
+
+write_files:
+  - path: /etc/default/locale
+    content: |
+      LANG=en_US.UTF-8
+      LC_ALL=en_US.UTF-8
+
+  - path: /etc/environment
+    content: |
+      LC_CTYPE=en_US.UTF-8
+      LANGUAGE=en_US:en
+
+  - path: /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
+    content: |
+      PasswordAuthentication yes
+
+runcmd:
+  - locale-gen en_US.UTF-8
+  - update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+  - systemctl restart sshd
+
+users:
+  - name: ${username}
+    groups: sudo
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    passwd: ${password}
+    lock-passwd: false
+    ssh_pwauth: true
+    chpasswd: { expire: False }
+
+preserve_hostname: false
+manage_etc_hosts: false
+timezone: Asia/Jakarta
+fqdn: ${hostname}
